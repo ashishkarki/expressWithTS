@@ -10,26 +10,50 @@ const app = express()
 // middlewares
 app.use(express.json())
 //// also custom middleware
-const customMiddleware = (req: Request, res: Response, next: NextFunction) => {
+const customMdlwr = (req: Request, res: Response, next: NextFunction) => {
   req.body['custom-param'] = 'this is a param added by custom middleware'
 
   next()
 }
 // use this custom middleware
-app.use(customMiddleware)
+app.use(customMdlwr)
+
+// another custom middleware with currying property
+const customMdlewrWithCurry =
+  ({ curriedParam }: { curriedParam: string }) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    // adding params to locals object of the response
+    res.locals.curriedParam = curriedParam
+
+    next()
+  }
 
 // the routes
-app.get(`${API_NAME_VERSION}`, (req: Request, res: Response) => {
-  return res.send(
-    `Hello express ts \n with custom middleware param: ${req.body['custom-param']}`
-  )
-})
+app.get(
+  `${API_NAME_VERSION}`,
+  customMdlewrWithCurry({ curriedParam: 'a locals object param' }),
+  (req: Request, res: Response) => {
+    return res.send(
+      `Hello express ts \n with custom middleware param: ${req.body['custom-param']} \n and custom middleware
+      res.locals param: ${res.locals.curriedParam}`
+    )
+  }
+)
 
 app.get(
   `${API_NAME_VERSION}/:idParam/:nameParam`,
-  (req: Request, res: Response, next: NextFunction) => {
-    req.params['another-param'] =
-      'this param is specific only to this get request'
+  (
+    req: Request<
+      { anotherParam: string; idParam: string; nameParam: string },
+      {},
+      {},
+      {},
+      {}
+    >,
+    res: Response,
+    next: NextFunction
+  ) => {
+    req.params.anotherParam = 'this param is specific only to this get request'
 
     next()
   },
@@ -39,7 +63,7 @@ app.get(
       params: {
         id: req.params.idParam,
         name: req.params.nameParam,
-        anotherParam: req.params['another-param'],
+        anotherParam: req.params['anotherParam'],
       },
     })
   }
