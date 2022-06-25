@@ -82,6 +82,23 @@ app.all(`${API_NAME_VERSION}/all`, (_, res: Response) => {
   })
 })
 
+// some error handling
+async function throwAnError() {
+  throw new Error(`${API_NAME_VERSION}: an Error`)
+}
+
+// its a good idea to wrap async code in try/catch block
+app.get(`${API_NAME_VERSION}/error`, async (req, res) => {
+  try {
+    await throwAnError()
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: `We threw a dramatic error: ${error.message}`,
+    })
+  }
+})
+
 // listen
 app.listen(PORT, () => {
   console.log(`Express TS server listening at port ${PORT}`)
