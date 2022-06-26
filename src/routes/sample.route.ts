@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express'
+import { SampleController } from '../controllers'
 
 import { API_NAME_VERSION } from '../utils/constants'
 import { customMdlewrWithCurry } from '../utils/middlewares'
@@ -7,16 +8,12 @@ import { customMdlewrWithCurry } from '../utils/middlewares'
 const sampleRtr = express.Router()
 
 // the routes
-sampleRtr.get(
-  `/`,
-  customMdlewrWithCurry({ curriedParam: 'a locals object param' }),
-  (req: Request, res: Response) => {
-    return res.send(
-      `Hello express ts \n with custom middleware param: ${req.body['custom-param']} \n and custom middleware
-      res.locals param: ${res.locals.curriedParam}`
-    )
-  }
-)
+sampleRtr
+  .route(`/`)
+  .get(
+    customMdlewrWithCurry({ curriedParam: 'a locals object param' }),
+    SampleController.getRootRequest
+  )
 
 sampleRtr.get(
   `/:idParam/:nameParam`,
@@ -35,30 +32,12 @@ sampleRtr.get(
 
     next()
   },
-  (req: Request, res: Response) => {
-    return res.status(200).json({
-      message: 'parameterized request',
-      params: {
-        id: req.params.idParam,
-        name: req.params.nameParam,
-        anotherParam: req.params['anotherParam'],
-      },
-    })
-  }
+  SampleController.getParameterizedRequest
 )
 
-sampleRtr.post(`/`, (req: Request, res: Response) => {
-  return res.status(201).json({
-    message: 'Posted data',
-    postedData: req.body,
-  })
-})
+sampleRtr.post(`/`, SampleController.postRequest)
 
-sampleRtr.all(`/all`, (_, res: Response) => {
-  return res.status(200).json({
-    message: 'All data',
-  })
-})
+sampleRtr.all(`/all`, SampleController.getAllRequest)
 
 // some error handling
 async function throwAnError() {
@@ -66,16 +45,7 @@ async function throwAnError() {
 }
 
 // its a good idea to wrap async code in try/catch block
-sampleRtr.get(`/error`, async (req, res) => {
-  try {
-    await throwAnError()
-  } catch (error: any) {
-    res.status(500).json({
-      success: false,
-      message: `We threw a dramatic error: ${error.message}`,
-    })
-  }
-})
+sampleRtr.get(`/error`, SampleController.throwAnError)
 
 // export default
 export default sampleRtr

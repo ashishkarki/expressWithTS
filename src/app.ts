@@ -1,5 +1,6 @@
-import express, { NextFunction, Request, Response } from 'express'
-import sampleRtr from './routes/sample.route'
+import express from 'express'
+import { sampleRtr } from './routes'
+
 import { API_NAME_VERSION, ROUTES } from './utils/constants'
 import { customMdlwr } from './utils/middlewares'
 
@@ -11,6 +12,8 @@ const app = express()
 
 // middlewares
 app.use(express.json())
+
+// put all the routes that don't use middlewares here before
 
 // Example => use this custom middleware - for all the requests
 app.use(customMdlwr)

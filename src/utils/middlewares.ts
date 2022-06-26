@@ -6,7 +6,7 @@ export const customMdlwr = (
   res: Response,
   next: NextFunction
 ) => {
-  req.body['custom-param'] = 'this is a param added by custom middleware'
+  req.body['custom-param'] = 'Param added by Common, Custom middleware'
 
   next()
 }
