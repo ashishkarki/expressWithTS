@@ -1,6 +1,8 @@
 import express from 'express'
-import { sampleRtr } from './routes'
+import helmet from 'helmet'
+import morgan from 'morgan'
 
+import { sampleRtr } from './routes'
 import { API_NAME_VERSION, ROUTES } from './utils/constants'
 import { customMdlwr } from './utils/middlewares'
 
@@ -12,8 +14,10 @@ const app = express()
 
 // middlewares
 app.use(express.json())
+app.use(morgan('dev'))
+app.use(helmet())
 
-// put all the routes that don't use middlewares here before
+// put all the routes that don't use custom middlewares here
 
 // Example => use this custom middleware - for all the requests
 app.use(customMdlwr)
